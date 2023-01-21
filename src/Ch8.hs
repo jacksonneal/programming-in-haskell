@@ -37,12 +37,12 @@ find k t = head [v | (k', v) <- t, k == k']
 
 type Subst = Assoc Char Bool
 
-eval :: Subst -> Prop -> Bool
-eval _ (Const b) = b
-eval s (Var x) = find x s
-eval s (Not p) = not (eval s p)
-eval s (And p q) = eval s p && eval s q
-eval s (Imply p q) = eval s p <= eval s q
+eval' :: Subst -> Prop -> Bool
+eval' _ (Const b) = b
+eval' s (Var x) = find x s
+eval' s (Not p) = not (eval' s p)
+eval' s (And p q) = eval' s p && eval' s q
+eval' s (Imply p q) = eval' s p <= eval' s q
 
 vars :: Prop -> [Char]
 vars (Const _) = []
@@ -67,7 +67,26 @@ substs p = map (zip vs) (bools (length vs))
     vs = rmdups (vars p)
 
 isTaut :: Prop -> Bool
-isTaut p = and [eval s p | s <- substs p]
+isTaut p = and [eval' s p | s <- substs p]
 
--- abstract machine 
+-- abstract machine
 
+data Expr = Val Int | Add Expr Expr
+
+type Cont = [Op]
+
+data Op = EVAL Expr | ADD Int
+
+eval :: Expr -> Cont -> Int
+eval (Val n) c = exec c n
+eval (Add x y) c = eval x (EVAL y : c)
+
+exec :: Cont -> Int -> Int
+exec [] n = n
+exec (EVAL y : c) n = eval y (ADD n : c)
+exec (ADD n : c) m = exec c (n + m)
+
+value :: Expr -> Int
+value e = eval e []
+
+-- exercises 
