@@ -37,6 +37,7 @@ library
     exposed-modules:
         Ch6
         Ch7
+        Ch8
 
     build-depends:    base ^>=4.16.4.0
     hs-source-dirs:   src
