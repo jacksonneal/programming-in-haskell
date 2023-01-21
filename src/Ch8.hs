@@ -89,4 +89,44 @@ exec (ADD n : c) m = exec c (n + m)
 value :: Expr -> Int
 value e = eval e []
 
--- exercises 
+-- exercises
+
+data Nat = Zero | Succ Nat
+
+add :: Nat -> Nat -> Nat
+add Zero n = n
+add (Succ m) n = Succ (add m n)
+
+mult :: Nat -> Nat -> Nat
+mult Zero n = Zero
+mult (Succ m) n = add n (mult m n)
+
+data Tree a = Leaf a | Node (Tree a) a (Tree a)
+
+occurs :: Ord a => a -> Tree a -> Bool
+occurs x (Leaf y) = x == y
+occurs x (Node l y r) = case compare x y of
+  LT -> occurs x l
+  EQ -> True
+  GT -> occurs x r
+
+data Tree' a = Leaf' a | Node' (Tree' a) (Tree' a)
+
+leaves :: Tree' a -> Int
+leaves (Leaf' _) = 1
+leaves (Node' l r) = leaves l + leaves r
+
+balanced :: Tree' a -> Bool
+balanced (Leaf' _) = True
+balanced (Node' l r) = abs (leaves l - leaves r) <= 1 && balanced l && balanced r
+
+halve :: [a] -> ([a], [a])
+halve l = splitAt n l
+  where
+    n = length l `div` 2
+
+balance :: [a] -> Tree' a
+balance [x] = Leaf' x
+balance xs = Node' (balance front) (balance back)
+  where
+    (front, back) = halve xs
