@@ -58,6 +58,17 @@ choices = concatMap perms . subs
 choices' :: [a] -> [[a]]
 choices' xs = [zs | ys <- subs xs, zs <- perms ys]
 
+removeOne :: Eq a => a -> [a] -> [a]
+removeOne x [] = []
+removeOne x (y : ys)
+  | x == y = ys
+  | otherwise = y : removeOne x ys
+
+isChoice :: Eq a => [a] -> [a] -> Bool
+isChoice [] _ = True
+isChoice (x : xs) [] = False
+isChoice (x : xs) ys = elem x ys && isChoice xs (removeOne x ys)
+
 solution :: Expr -> [Int] -> Int -> Bool
 solution e ns n =
   elem (values e) (choices ns) && eval e == [n]
@@ -98,6 +109,12 @@ combine' (l, x) (r, y) =
 solutions' :: [Int] -> Int -> [Expr]
 solutions' ns n =
   [e | ns' <- choices ns, (e, m) <- results ns', m == n]
+
+numExprs :: [Int] -> Int
+numExprs = sum . map (length . exprs) . choices
+
+numValidExprs :: [Int] -> Int
+numValidExprs = sum . map (length . concatMap eval . exprs) . choices
 
 main :: IO ()
 main = print (solutions' [1, 3, 7, 10, 25, 50] 765)
