@@ -6,6 +6,8 @@ main :: IO ()
 main = do
   hangman
 
+-- * hangman
+
 hangman :: IO ()
 hangman = do
   putStrLn "Think of a word: "
@@ -44,3 +46,5 @@ play word = do
 
 match :: String -> String -> String
 match xs ys = [if x `elem` ys then x else '-' | x <- xs]
+
+-- * nim
