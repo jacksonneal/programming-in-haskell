@@ -101,6 +101,7 @@ newline = putChar '\n'
 
 playNim :: Board -> Int -> IO ()
 playNim board player = do
+  hSetBuffering stdin NoBuffering
   newline
   putBoard board
   if finished board
@@ -114,7 +115,7 @@ playNim board player = do
       putStr "Player "
       print player
       row <- getDigit "Enter a row number: "
-      num <- getDigit "Start to remove: "
+      num <- getDigit "Star to remove: "
       if valid board row num
         then playNim (move board row num) (next player)
         else do
