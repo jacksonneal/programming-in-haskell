@@ -208,3 +208,50 @@ life b = do
 
 wait :: Int -> IO ()
 wait n = sequence_ [return () | _ <- [1 .. n]]
+
+-- * exercises
+
+putStr' :: String -> IO ()
+putStr' xs = sequence_ [putChar x | x <- xs]
+
+putBoard' :: Board -> IO ()
+putBoard' = putBoardInner 1
+  where
+    putBoardInner :: Int -> Board -> IO ()
+    putBoardInner r [] = return ()
+    putBoardInner r (x : xs) = do
+      putRow r x
+      putBoardInner (r + 1) xs
+
+putBoardSeq :: Board -> IO ()
+putBoardSeq xs = sequence_ [putRow r x | x <- xs, r <- [1 ..]]
+
+adder :: IO ()
+adder = do
+  hSetBuffering stdin NoBuffering
+  newline
+  n <- getDigit "How many numbers? "
+  xs <- sequence [getDigit "" | _ <- [1 .. n]]
+  putStrLn ("The total is " ++ show (sum xs))
+  newline
+
+readLine' :: IO String
+readLine' = do
+  handle ""
+  where
+    handle :: String -> IO String
+    handle xs = do
+      x <- getCh
+      case x of
+        '\n' -> do
+          putChar '\n'
+          return xs
+        '\DEL' -> do
+          if null xs
+            then handle ""
+            else do
+              putStr "\b \b"
+              handle (init xs)
+        _ -> do
+          putChar x
+          handle (xs ++ [x])
