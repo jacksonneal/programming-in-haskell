@@ -3,6 +3,7 @@ module Ch11 where
 import Data.Char
 import Data.List
 import System.IO
+import System.Random hiding (next)
 
 size :: Int
 size = 3
@@ -125,6 +126,13 @@ prompt p = "Player " ++ show p ++ ", enter your move: "
 
 data Tree a = Node a [Tree a] deriving (Show)
 
+tsize :: Tree a -> Int
+tsize (Node _ ts) = 1 + sum (map tsize ts)
+
+tdepth :: Tree a -> Int
+tdepth (Node _ []) = 0
+tdepth (Node _ ts) = 1 + maximum (map tdepth ts)
+
 gametree :: Grid -> Player -> Tree Grid
 gametree g p = Node g [gametree g' (next p) | g' <- moves g p]
 
@@ -159,6 +167,12 @@ bestmove g p = head [g' | Node (g', p') _ <- ts, p' == best]
     tree = prune depth (gametree g p)
     Node (_, best) ts = minimax tree
 
+bestmoves :: Grid -> Player -> [Grid]
+bestmoves g p = [g' | Node (g', p') _ <- ts, p' == best]
+  where
+    tree = prune depth (gametree g p)
+    Node (_, best) ts = minimax tree
+
 play :: Grid -> Player -> IO ()
 play g p = do
   cls
@@ -180,7 +194,9 @@ play' g p
         [g'] -> play g' (next p)
   | p == X = do
       putStr "Player X is thinking... "
-      (play $! bestmove g p) (next p)
+      let gs = bestmoves g p
+      n <- randomRIO (0, length gs - 1)
+      play (gs !! n) (next p)
 
 main :: IO ()
 main = do
