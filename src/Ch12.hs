@@ -85,3 +85,39 @@ instance Applicative ZipList where
 -- pure (.) <*> x :: f ((a -> b) -> (a -> c))
 -- pure (.) <*> x <*> y :: f (a -> c)
 -- (pure (.) <*> x <*> y) <*> z :: f c
+
+data Expr a = Var a | Val Int | Add (Expr a) (Expr a)
+  deriving (Show)
+
+instance Functor Expr where
+  -- fmap :: (a -> b) -> Expr a -> Expr b
+  fmap g (Var x) = Var (g x)
+  fmap _ (Val x) = Val x
+  fmap g (Add x y) = Add (fmap g x) (fmap g y)
+
+instance Applicative Expr where
+  -- pure :: a -> Expr a
+  pure = Var
+
+  -- (<*>) :: Expr (a -> b) -> Expr a -> Expr b
+  Var f <*> Var x = Var (f x)
+  Var f <*> Add x y = Add (fmap f x) (fmap f y)
+  _ <*> Val x = Val x
+  Val x <*> _ = Val x
+  Add f g <*> x = Add (f <*> x) (g <*> x)
+
+instance Monad Expr where
+  -- return :: a -> Expr a
+  return = pure
+
+  -- (>>=) :: Expr a -> (a -> Expr b) -> Expr b
+  Var x >>= f = f x
+  Val x >>= _ = Val x
+  Add x y >>= f = Add (x >>= f) (y >>= f)
+
+-- example:
+-- Var 5 >>= \x -> Var (x*3)
+-- => 15
+--
+-- Add (Var 2) (Var 3) >>= \x -> Var (x*3)
+-- => Add (Var 4) (Var 6)
