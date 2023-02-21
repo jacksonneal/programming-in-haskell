@@ -18,6 +18,13 @@ instance Functor Tree where
 --
 --   -- (<*>) :: (a -> b -> c) -> (a -> b) -> (a -> c)
 --   g <*> h = \x -> g x $ h x
+--
+-- instance Monad ((->) a) where
+--   -- return :: b -> (a -> b)
+--   return = pure
+--
+--   -- (>>=) :: (a -> b) -> (b -> (a -> c)) -> (a -> c)
+--   (>>=) f g r = g (f r) r
 
 newtype ZipList a = Z [a] deriving (Show)
 
