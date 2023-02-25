@@ -47,7 +47,23 @@ instance Applicative Parser where
           [(g, out)] -> parse (fmap g px) out
       )
 
+instance Monad Parser where
+  -- (>>=) :: Parser a -> (a -> Parser b) -> Parser b
+  p >>= f =
+    P
+      ( \inp -> case parse p inp of
+          [] -> []
+          [(v, out)] -> parse (f v) out
+      )
+
 three :: Parser (Char, Char)
 three = g <$> item <*> item <*> item
   where
     g x y z = (x, z)
+
+three' :: Parser (Char, Char)
+three' = do
+  x <- item
+  item
+  z <- item
+  return (x, z)
