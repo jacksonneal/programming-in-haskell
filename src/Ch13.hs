@@ -133,3 +133,10 @@ int =
     n <- nat
     return (-n)
     <|> nat
+
+token :: Parser a -> Parser a
+token p = do
+  space
+  v <- p
+  space
+  return v
