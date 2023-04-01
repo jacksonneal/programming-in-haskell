@@ -44,6 +44,7 @@ library
         Ch12
         Ch13
         Ch14
+        Ch15
 
     build-depends:    base ^>=4.16.4.0, random
     hs-source-dirs:   src
